@@ -1,0 +1,20 @@
+{
+  "name": "advent-of-code",
+  "version": "1.0.0",
+  "description": "Solutions to Advent of Code 2019",
+  "author": "Matej Snuderl",
+  "license": "ISC",
+  "scripts": {
+    "test": "jest",
+    "lint": "npm run prettier",
+    "prettier": "prettier -l '**/*.ts'"
+  },
+  "devDependencies": {
+    "@types/jest": "^24.0.23",
+    "@types/node": "^12.12.14",
+    "jest": "^24.9.0",
+    "prettier": "^1.19.1",
+    "ts-jest": "^24.2.0",
+    "typescript": "^3.7.2"
+  }
+}
