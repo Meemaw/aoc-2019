@@ -1,4 +1,4 @@
-import { readLinesAsNumbers } from '../utils/input';
+import * as input from '../utils/input';
 
 function calculateRequiredFuel(moduleMass: number): number {
   return Math.floor(moduleMass / 3) - 2;
@@ -12,13 +12,13 @@ function calculateTotalRequiredFuel(moduleMass: number, acc = 0): number {
 }
 
 export function partOne(): number {
-  return readLinesAsNumbers({ day: 1 }).reduce((acc, moduleMass) => {
+  return input.readLinesAsNumbers({ day: 1 }).reduce((acc, moduleMass) => {
     return acc + calculateRequiredFuel(moduleMass);
   }, 0);
 }
 
 export function partTwo(): number {
-  return readLinesAsNumbers({ day: 1 }).reduce((acc, moduleMass) => {
+  return input.readLinesAsNumbers({ day: 1 }).reduce((acc, moduleMass) => {
     return acc + calculateTotalRequiredFuel(moduleMass);
   }, 0);
 }
