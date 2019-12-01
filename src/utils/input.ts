@@ -6,7 +6,9 @@ type ReadInputOptions = {
 };
 
 export function readInput({ day }: ReadInputOptions): Buffer {
-  return fs.readFileSync(path.join(process.cwd(), `day${day}`, 'input.txt'));
+  return fs.readFileSync(
+    path.join(process.cwd(), 'src', `day${day}`, 'input.txt')
+  );
 }
 
 export function readLines(options: ReadInputOptions): string[] {

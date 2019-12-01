@@ -14,7 +14,7 @@
   "scripts": {
     "test": "jest",
     "lint": "npm run prettier",
-    "prettier": "prettier -l '**/*.ts'"
+    "prettier": "prettier -l 'src/**/*.ts'"
   },
   "devDependencies": {
     "@types/jest": "^24.0.23",
