@@ -1,9 +1,16 @@
 {
   "name": "advent-of-code",
-  "version": "1.0.0",
+  "version": "0.0.0-development",
   "description": "Solutions to Advent of Code 2019",
-  "author": "Matej Snuderl",
-  "license": "ISC",
+  "author": "Meemaw <ematej.snuderl@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Meemaw/aoc-2019"
+  },
+  "bugs": {
+    "url": "https://github.com/Meemaw/aoc-2019/issues"
+  },
   "scripts": {
     "test": "jest",
     "lint": "npm run prettier",
