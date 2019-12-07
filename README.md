@@ -7,3 +7,4 @@
 - [x] [Day 3: Crossed Wires](src/day3/day3.ts)
 - [x] [Day 4: Secure Container](src/day4/day4.ts)
 - [x] [Day 5: Sunny with a Chance of Asteroids](src/day5/day5.ts)
+- [x] [Day 6: Universal Orbit Map](src/day6/day6.ts)

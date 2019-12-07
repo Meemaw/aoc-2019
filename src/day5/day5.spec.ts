@@ -1,6 +1,6 @@
 import { partOne, partTwo } from './day5';
 
-describe('day1', () => {
+describe('day5', () => {
   it('Should solve part one', () => {
     expect(partOne()).toEqual(15097178);
   });
