@@ -1,4 +1,4 @@
-import * as input from 'utils/input';
+import * as input from '../utils/input';
 
 function calculateRequiredFuel(moduleMass: number): number {
   return Math.floor(moduleMass / 3) - 2;

@@ -11,6 +11,12 @@ export function readInput({ day }: ReadInputOptions): Buffer {
   );
 }
 
+export function readAsNumbers(options: ReadInputOptions): number[] {
+  return String(readInput(options))
+    .split(',')
+    .map(Number);
+}
+
 export function readLines(options: ReadInputOptions): string[] {
   return String(readInput(options))
     .replace(/\r/g, '')
