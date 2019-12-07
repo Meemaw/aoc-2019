@@ -1,6 +1,11 @@
 import * as input from '../utils/input';
 import { executeProgram } from '../utils/computer';
 
+type OverrideOptions = {
+  noun: number;
+  verb: number;
+};
+
 export function partOne(): number {
   return executeProgramWithOverrides({ noun: 12, verb: 2 });
 }
@@ -16,15 +21,7 @@ export function partTwo(): number {
   throw new Error('Could not find input noun and verb');
 }
 
-type ExecuteTrackOptions = {
-  noun: number;
-  verb: number;
-};
-
-function executeProgramWithOverrides({
-  noun,
-  verb,
-}: ExecuteTrackOptions): number {
+function executeProgramWithOverrides({ noun, verb }: OverrideOptions): number {
   const memory = input.readAsNumbers({ day: 2 });
   memory[1] = noun;
   memory[2] = verb;
