@@ -24,7 +24,6 @@ type Pointer = number;
 type Value = number;
 
 type AccessValueOptions = {
-  memory: Memory;
   pointer: Pointer;
   accessMode: AccessMode;
 };
@@ -51,112 +50,113 @@ function parseInstruction(instruction: Instruction) {
   };
 }
 
-function accessValue({
-  memory,
-  pointer,
-  accessMode,
-}: AccessValueOptions): Value {
-  switch (accessMode) {
-    case AccessMode.POSITION:
-      return memory[Number(memory[pointer])];
-    case AccessMode.IMMEDIATE:
-      return memory[pointer];
-    default:
-      throw new Error(`Unexpected parameter mode: ${accessMode}`);
-  }
-}
-
 type ProgramOptions = {
   memory: Memory;
-  inputs?: number[];
+  input?: number[];
 };
 
-export function executeProgram({ memory, inputs }: ProgramOptions): number[] {
-  const safeInputs = (inputs || []).slice();
-  const output = [];
+export function executeProgram({ memory, input }: ProgramOptions): number[] {
+  const output: number[] = [];
+  const asyncProgram = executeProgramAsync({ memory, input });
+  let nextResult = asyncProgram.next();
+  while (!nextResult.done) {
+    output.push(nextResult.value);
+    nextResult = asyncProgram.next();
+  }
+  return output;
+}
+
+export function* executeProgramAsync({
+  memory,
+  input,
+}: ProgramOptions): Generator<number, any, undefined> {
+  const safeInputs = (input || []).slice();
   let instructionPointer = 0;
 
-  function accessFirstParameterImmediate() {
-    return accessValue({
-      memory,
-      pointer: instructionPointer + 1,
-      accessMode: AccessMode.IMMEDIATE,
-    });
+  function getInputValue(): number {
+    if (safeInputs.length === 0) {
+      throw new Error(
+        `Missing input, instructionPointer: ${instructionPointer}`
+      );
+    }
+    return safeInputs.shift() as number;
   }
 
-  function accessFirstParameter(accessMode: AccessMode) {
-    return accessValue({ memory, pointer: instructionPointer + 1, accessMode });
+  function getArg({ pointer, accessMode }: AccessValueOptions): Value {
+    switch (accessMode) {
+      case AccessMode.POSITION:
+        return memory[Number(memory[pointer])];
+      case AccessMode.IMMEDIATE:
+        return memory[pointer];
+      default:
+        throw new Error(`Unexpected parameter mode: ${accessMode}`);
+    }
   }
 
-  function accessSecondParameter(accessMode: AccessMode) {
-    return accessValue({ memory, pointer: instructionPointer + 2, accessMode });
+  function getFirstArg(accessMode: AccessMode) {
+    return getArg({ pointer: instructionPointer + 1, accessMode });
   }
 
-  function accessThirdParameter(accessMode: AccessMode) {
-    return accessValue({ memory, pointer: instructionPointer + 3, accessMode });
+  function getSecondArg(accessMode: AccessMode) {
+    return getArg({ pointer: instructionPointer + 2, accessMode });
+  }
+
+  function getThirdArg(accessMode: AccessMode) {
+    return getArg({ pointer: instructionPointer + 3, accessMode });
   }
 
   function addOp(p1Mode: AccessMode, p2Mode: AccessMode) {
-    const v1 = accessFirstParameter(p1Mode);
-    const v2 = accessSecondParameter(p2Mode);
-    memory[memory[instructionPointer + 3]] = v1 + v2;
+    const address = getThirdArg(AccessMode.IMMEDIATE);
+    memory[address] = getFirstArg(p1Mode) + getSecondArg(p2Mode);
     instructionPointer += 4;
   }
 
   function multiplyOp(p1Mode: AccessMode, p2Mode: AccessMode) {
-    const v1 = accessFirstParameter(p1Mode);
-    const v2 = accessSecondParameter(p2Mode);
-    memory[memory[instructionPointer + 3]] = v1 * v2;
+    const address = getThirdArg(AccessMode.IMMEDIATE);
+    memory[address] = getFirstArg(p1Mode) * getSecondArg(p2Mode);
     instructionPointer += 4;
   }
 
   function jitOp(p1Mode: AccessMode, p2Mode: AccessMode) {
-    const v1 = accessFirstParameter(p1Mode);
+    const v1 = getFirstArg(p1Mode);
     if (v1 !== 0) {
-      instructionPointer = accessSecondParameter(p2Mode);
+      instructionPointer = getSecondArg(p2Mode);
     } else {
       instructionPointer += 3;
     }
   }
 
   function jifOp(p1Mode: AccessMode, p2Mode: AccessMode) {
-    const v1 = accessFirstParameter(p1Mode);
+    const v1 = getFirstArg(p1Mode);
     if (v1 === 0) {
-      instructionPointer = accessSecondParameter(p2Mode);
+      instructionPointer = getSecondArg(p2Mode);
     } else {
       instructionPointer += 3;
     }
   }
 
   function ltOp(p1Mode: AccessMode, p2Mode: AccessMode) {
-    const v1 = accessFirstParameter(p1Mode);
-    const v2 = accessSecondParameter(p2Mode);
-    const address = accessThirdParameter(AccessMode.IMMEDIATE);
-    memory[address] = v1 < v2 ? 1 : 0;
+    const address = getThirdArg(AccessMode.IMMEDIATE);
+    memory[address] = getFirstArg(p1Mode) < getSecondArg(p2Mode) ? 1 : 0;
     instructionPointer += 4;
   }
 
   function eqOp(p1Mode: AccessMode, p2Mode: AccessMode) {
-    const v1 = accessFirstParameter(p1Mode);
-    const v2 = accessSecondParameter(p2Mode);
-    const address = accessThirdParameter(AccessMode.IMMEDIATE);
-    memory[address] = v1 === v2 ? 1 : 0;
+    const address = getThirdArg(AccessMode.IMMEDIATE);
+    memory[address] = getFirstArg(p1Mode) === getSecondArg(p2Mode) ? 1 : 0;
     instructionPointer += 4;
   }
 
   function inOp() {
-    const address = accessFirstParameterImmediate();
-    if (safeInputs.length === 0) {
-      throw new Error('Missing input');
-    }
-    memory[address] = safeInputs.shift() as number;
+    const address = getFirstArg(AccessMode.IMMEDIATE);
+    memory[address] = getInputValue();
     instructionPointer += 2;
   }
 
   function outOp() {
-    const position = accessFirstParameterImmediate();
+    const address = getFirstArg(AccessMode.IMMEDIATE);
     instructionPointer += 2;
-    return position;
+    return address;
   }
 
   while (instructionPointer < memory.length) {
@@ -178,7 +178,7 @@ export function executeProgram({ memory, inputs }: ProgramOptions): number[] {
         inOp();
         break;
       case Instruction.OUT:
-        output.push(memory[outOp()]);
+        yield memory[outOp()];
         break;
       case Instruction.JIT:
         jitOp(firstParameterAccessMode, secondParameterAccessMode);
@@ -199,6 +199,4 @@ export function executeProgram({ memory, inputs }: ProgramOptions): number[] {
         throw new Error(`Unexpected opcode: ${opcode}`);
     }
   }
-
-  return output;
 }
