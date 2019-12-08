@@ -1,5 +1,5 @@
 import * as input from '../utils/input';
-import { executeProgram, executeProgramAsync } from '../utils/computer';
+import { executeProgram } from '../utils/computer';
 
 const permutator = (n: number[]) => {
   const permutations: number[][] = [];

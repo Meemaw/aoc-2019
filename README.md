@@ -8,3 +8,5 @@
 - [x] [Day 4: Secure Container](src/day4/day4.ts)
 - [x] [Day 5: Sunny with a Chance of Asteroids](src/day5/day5.ts)
 - [x] [Day 6: Universal Orbit Map](src/day6/day6.ts)
+- [x] [Day 7: Amplification Circuit](src/day7/day7.ts)
+- [x] [Day 8: Space Image Format](src/day8/day8.ts)
